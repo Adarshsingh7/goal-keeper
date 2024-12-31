@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .border-border {
+        border-color: #000; /* Replace with the desired color */
+    }
+    body {
+        bg-background: #000;
+    }
+}
+
+@layer base {
+    :root {
+        --background: 280 40% 94%;
+        --foreground: 280 10% 10%;
+
+        --card: 0 0% 100%;
+        --card-foreground: 280 10% 10%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 280 10% 10%;
+
+        --primary: 280 60% 50%;
+        --primary-foreground: 280 10% 98%;
+
+        --secondary: 320 60% 60%;
+        --secondary-foreground: 280 10% 98%;
+
+        --muted: 280 20% 90%;
+        --muted-foreground: 280 10% 40%;
+
+        --accent: 40 100% 50%;
+        --accent-foreground: 280 10% 10%;
+
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 280 10% 98%;
+
+        --border: 280 30% 80%;
+        --input: 280 30% 80%;
+        --ring: 280 60% 50%;
+
+        --radius: 0.75rem;
+    }
+
+    .dark {
+        --background: 280 40% 6%;
+        --foreground: 280 10% 90%;
+
+        --card: 280 40% 10%;
+        --card-foreground: 280 10% 90%;
+
+        --popover: 280 40% 10%;
+        --popover-foreground: 280 10% 90%;
+
+        --primary: 280 60% 50%;
+        --primary-foreground: 280 10% 98%;
+
+        --secondary: 320 60% 40%;
+        --secondary-foreground: 280 10% 98%;
+
+        --muted: 280 20% 20%;
+        --muted-foreground: 280 10% 60%;
+
+        --accent: 40 100% 50%;
+        --accent-foreground: 280 10% 10%;
+
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 280 10% 90%;
+
+        --border: 280 30% 30%;
+        --input: 280 30% 30%;
+        --ring: 280 60% 50%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+.confetti {
+    width: 10px;
+    height: 10px;
+    background-color: #f0f;
+    position: absolute;
+    animation: confetti-fall 5s ease-out infinite;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100%) rotate(0deg);
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+    }
+}
