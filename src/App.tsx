@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { toast, Toaster } from "sonner";
 import EditTaskModal from "./components/EditTaskModal";
+import { compressData, decompressData } from "./utils/compression";
 
 interface Task {
   id: string;
@@ -23,16 +24,24 @@ interface Task {
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [tasks, setTasks] = useState<Task[]>(() => {
-    const tasksParam = searchParams.get("tasks");
-    return tasksParam ? JSON.parse(atob(tasksParam)) : [];
+    const tasksParam = searchParams.get("t");
+    if (tasksParam) {
+      try {
+        return JSON.parse(decompressData(tasksParam));
+      } catch (error) {
+        console.error("Error parsing tasks:", error);
+        return [];
+      }
+    }
+    return [];
   });
   const [newTask, setNewTask] = useState({ name: "", description: "" });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   useEffect(() => {
-    const encodedTasks = btoa(JSON.stringify(tasks));
-    setSearchParams({ tasks: encodedTasks });
+    const compressedTasks = compressData(JSON.stringify(tasks));
+    setSearchParams({ t: compressedTasks });
   }, [tasks, setSearchParams]);
 
   const addTask = () => {
