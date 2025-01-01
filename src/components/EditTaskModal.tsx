@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,7 +14,6 @@ interface Task {
   id: string;
   name: string;
   description: string;
-  emoji: string;
 }
 
 interface EditTaskModalProps {
@@ -33,7 +33,6 @@ export default function EditTaskModal({
     id: "",
     name: "",
     description: "",
-    emoji: "",
   });
 
   useEffect(() => {
@@ -52,15 +51,15 @@ export default function EditTaskModal({
       <DialogContent className="bg-white/95 backdrop-blur-md shadow-xl rounded-lg w-full max-w-md mx-auto">
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl font-extrabold text-purple-600">
-            Edit Goal {editedTask.emoji}
+            Edit Goal
           </DialogTitle>
-          {/* <Button
+          <Button
             variant="ghost"
             className="absolute right-4 top-4 text-purple-500 hover:text-purple-700"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
-          </Button> */}
+          </Button>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input

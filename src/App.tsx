@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { PlusCircle, Share2, Mail, Trash2, Edit } from "lucide-react";
-import Confetti from "react-confetti";
+import { PlusCircle, Share2, Trash2, Edit, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,54 +12,36 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast, Toaster } from "sonner";
-import EmailModal from "./components/EmailModal";
 import EditTaskModal from "./components/EditTaskModal";
 
 interface Task {
   id: string;
   name: string;
   description: string;
-  emoji: string;
 }
 
-const emojis = ["🎉", "🎊", "🥳", "🎈", "🎁", "🍾", "🕺", "💃", "🌟", "✨"];
-
 function App() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const tasksParam = searchParams.get("tasks");
+    return tasksParam ? JSON.parse(atob(tasksParam)) : [];
+  });
   const [newTask, setNewTask] = useState({ name: "", description: "" });
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
-    const tasksParam = new URLSearchParams(window.location.search).get("tasks");
-    if (tasksParam) {
-      try {
-        const parsedTasks = JSON.parse(decodeURIComponent(tasksParam));
-        setTasks(parsedTasks);
-        toast.success("Goals loaded from shared link!", {
-          icon: "🎉",
-        });
-      } catch (error) {
-        console.error("Error parsing goals from URL:", error);
-        toast.error("Failed to load goals from the link", {
-          icon: "😢",
-        });
-      }
-    }
-  }, []);
+    const encodedTasks = btoa(JSON.stringify(tasks));
+    setSearchParams({ tasks: encodedTasks });
+  }, [tasks, setSearchParams]);
 
   const addTask = () => {
     if (newTask.name && newTask.description) {
-      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-      setTasks([...tasks, { ...newTask, id: Date.now().toString(), emoji }]);
+      setTasks([...tasks, { ...newTask, id: Date.now().toString() }]);
       setNewTask({ name: "", description: "" });
       toast.success("Goal added successfully!", {
-        icon: "🎊",
+        icon: "✅",
       });
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 5000);
     }
   };
 
@@ -85,24 +67,15 @@ function App() {
     });
   };
 
-  const shareLink = () => {
-    const link = `${window.location.origin}${window.location.pathname}?tasks=${encodeURIComponent(JSON.stringify(tasks))}`;
-    navigator.clipboard.writeText(link);
-    toast.success("Link copied to clipboard!", {
-      icon: "🔗",
+  const createNewList = () => {
+    setTasks([]);
+    toast.success("New list created!", {
+      icon: "📝",
     });
-  };
-
-  const simulateSendEmail = (email: string) => {
-    toast.success(`Goals sent to ${email}!`, {
-      icon: "📧",
-    });
-    setIsEmailModalOpen(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-4 sm:p-6 md:p-8 overflow-x-hidden">
-      {showConfetti && <Confetti />}
       <Toaster />
       <div className="max-w-4xl mx-auto">
         <motion.h1
@@ -110,7 +83,7 @@ function App() {
           animate={{ opacity: 1, y: 0 }}
           className="text-4xl sm:text-5xl md:text-6xl font-bold text-center mb-8 text-white drop-shadow-lg"
         >
-          2025-Goal Keeper 🥅
+          Goal Keeper 🥅
         </motion.h1>
 
         <Card className="mb-8 bg-white/90 backdrop-blur-sm shadow-xl">
@@ -168,10 +141,7 @@ function App() {
                 <Card className="bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow duration-300">
                   <CardHeader>
                     <CardTitle className="text-lg sm:text-xl font-bold text-purple-600 flex items-center justify-between">
-                      <span className="flex items-center">
-                        <span className="mr-2 text-2xl">{task.emoji}</span>{" "}
-                        {task.name}
-                      </span>
+                      <span>{task.name}</span>
                       <span className="flex space-x-2">
                         <Button
                           variant="ghost"
@@ -206,10 +176,13 @@ function App() {
             className="flex-1"
           >
             <Button
-              onClick={() => setIsEmailModalOpen(true)}
-              className="w-full bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-bold py-2 px-4 rounded"
+              onClick={() =>
+                navigator.clipboard.writeText(window.location.href)
+              }
+              variant="outline"
+              className="w-full bg-white text-purple-600 font-bold py-2 px-4 rounded border-2 border-purple-400 hover:bg-purple-100"
             >
-              <Mail className="mr-2 h-4 w-4" /> Share Goals
+              <Share2 className="mr-2 h-4 w-4" /> Copy Link
             </Button>
           </motion.div>
           <motion.div
@@ -218,21 +191,14 @@ function App() {
             className="flex-1"
           >
             <Button
-              onClick={shareLink}
-              variant="outline"
-              className="w-full bg-white text-purple-600 font-bold py-2 px-4 rounded border-2 border-purple-400 hover:bg-purple-100"
+              onClick={createNewList}
+              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-2 px-4 rounded"
             >
-              <Share2 className="mr-2 h-4 w-4" /> Copy Link
+              <RefreshCw className="mr-2 h-4 w-4" /> New List
             </Button>
           </motion.div>
         </div>
       </div>
-
-      <EmailModal
-        isOpen={isEmailModalOpen}
-        onClose={() => setIsEmailModalOpen(false)}
-        onSubmit={simulateSendEmail}
-      />
 
       <EditTaskModal
         isOpen={isEditModalOpen}
